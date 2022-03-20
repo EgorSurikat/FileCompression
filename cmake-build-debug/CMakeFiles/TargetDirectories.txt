@@ -1,3 +1,0 @@
-C:/Users/ed230/CLionProjects/FileCompression/cmake-build-debug/CMakeFiles/FileCompression.dir
-C:/Users/ed230/CLionProjects/FileCompression/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/ed230/CLionProjects/FileCompression/cmake-build-debug/CMakeFiles/rebuild_cache.dir
