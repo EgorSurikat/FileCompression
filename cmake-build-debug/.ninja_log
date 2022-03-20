@@ -1,0 +1,26 @@
+# ninja log v5
+6	700	6680892589973997	build.ninja	b61a61ffc2c33cb4
+1	365	6680890232222262	CMakeFiles/FileCompression.dir/files/main.c.obj	bc60d5ba7df0a9af
+367	847	6680890236938612	FileCompression.exe	3e0d6573997a98fe
+6	438	6680900966791802	CMakeFiles/FileCompression.dir/files/main.c.obj	bc60d5ba7df0a9af
+440	829	6680900970628780	FileCompression.exe	3e0d6573997a98fe
+8	249	6680901858868948	CMakeFiles/FileCompression.dir/files/main.c.obj	bc60d5ba7df0a9af
+250	527	6680901861548327	FileCompression.exe	3e0d6573997a98fe
+4	211	6680902645513501	CMakeFiles/FileCompression.dir/files/main.c.obj	bc60d5ba7df0a9af
+212	507	6680902648376265	FileCompression.exe	3e0d6573997a98fe
+4	217	6680902788879730	CMakeFiles/FileCompression.dir/files/main.c.obj	bc60d5ba7df0a9af
+218	493	6680902791541770	FileCompression.exe	3e0d6573997a98fe
+5	228	6680902931441121	CMakeFiles/FileCompression.dir/files/main.c.obj	bc60d5ba7df0a9af
+229	521	6680902934307250	FileCompression.exe	3e0d6573997a98fe
+6	262	6680903034748233	CMakeFiles/FileCompression.dir/files/main.c.obj	bc60d5ba7df0a9af
+264	548	6680903037445170	FileCompression.exe	3e0d6573997a98fe
+6	228	6680903546507020	CMakeFiles/FileCompression.dir/files/main.c.obj	bc60d5ba7df0a9af
+229	497	6680903549187149	FileCompression.exe	3e0d6573997a98fe
+4	254	6680905823047577	CMakeFiles/FileCompression.dir/files/main.c.obj	bc60d5ba7df0a9af
+256	493	6680905825338413	FileCompression.exe	3e0d6573997a98fe
+8	271	6680907957623363	CMakeFiles/FileCompression.dir/files/main.c.obj	bc60d5ba7df0a9af
+273	582	6680907960584074	FileCompression.exe	3e0d6573997a98fe
+8	260	6680909751061518	CMakeFiles/FileCompression.dir/files/main.c.obj	bc60d5ba7df0a9af
+262	546	6680909753864343	FileCompression.exe	3e0d6573997a98fe
+6	259	6680912031249150	CMakeFiles/FileCompression.dir/files/main.c.obj	bc60d5ba7df0a9af
+260	564	6680912034213467	FileCompression.exe	3e0d6573997a98fe
