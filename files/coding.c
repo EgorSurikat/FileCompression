@@ -103,9 +103,6 @@ void BuildCodes(NODE* elem, CODETABLE * tableCode, char * codeOfSymbol, int leng
         strcpy(tableCode[elem->symb].codeOfSymbol, codeOfSymbol);
         tableCode[elem->symb].lenOfCode = lenght;
         codeOfSymbol[lenght - 1] = 0;
-        //printf("%c - %s\n", elem->symb, tableCode[elem->symb].codeOfSymbol);
-        // add to the file symbol and its number of occurrences
-        //fprintf(fw, "%c%d|", elem->symb, elem->freq);
         return;
     }
     if (elem->left != NULL) {
@@ -125,9 +122,7 @@ void BuildCodes(NODE* elem, CODETABLE * tableCode, char * codeOfSymbol, int leng
 // building encoded string
 void BuildStr(FILE * fr, CODETABLE * tableCode, char* newStr, int len){
     char *testStr = newStr;
-    //printf("111111111111111111111111\n");
     for (int i = 0; i < len; ++i) {
-        //printf("%d\n", i);
         // go through the file and replace each symbol with its code and write it to the string
         int symb = fgetc(fr);
         //tableCode[symb].codeOfSymbol[tableCode[symb].lenOfCode] = 0;
@@ -136,21 +131,16 @@ void BuildStr(FILE * fr, CODETABLE * tableCode, char* newStr, int len){
     }
 
     // add zeros to the string so that an integer number of bytes can be written to the file
-    //printf("3333333333333333333333\n");
     while (strlen(testStr) % 8 != 0) {
         memcpy(newStr, "0", 1);
         newStr += 1;
     }
-    //printf("222222222222222222222222\n");
-    //printf("%s - %d\n", testStr, strlen(testStr));
 }
 
 // form a string of bits from a string of symbols and write it to a file
 void BuildEncodedStr(FILE * fw, char * strCode){
     // counting the number of bytes
     unsigned long long int count = strlen(strCode) / 8;
-    //printf("aaaaaaaaa");
-    //printf("\n%d\n", count);
 
     BIT2CHAR symb;
     // creating a string that will then be written to a file
@@ -169,15 +159,10 @@ void BuildEncodedStr(FILE * fw, char * strCode){
         // get the symbol
         res[i] = symb.symb;
     }
-    //res[count] = '\0';
-    // write the received encrypted string to a file
-    //fprintf(fw, "%s", res);
-    //printf("fffffffffffffffffffffffffffff");
     fwrite(res, 1, count, fw);
-    //printf("%s", res);
 }
 
-
+// add metadata to the file
 void PrintNode2File(NODE * elem, FILE * fw){
     while (elem->next) {
         fprintf(fw, "%d %d ", elem->symb, elem->freq);
@@ -186,6 +171,7 @@ void PrintNode2File(NODE * elem, FILE * fw){
     fprintf(fw, "%d %d\n", elem->symb, elem->freq);
 }
 
+// print node to screen
 void PrintNode(NODE * elem){
     while (elem->next) {
         printf("%u\t=%d\n", elem->symb, elem->freq);
@@ -194,6 +180,7 @@ void PrintNode(NODE * elem){
     printf("%u\t=%d\n", elem->symb, elem->freq);
 }
 
+// main coding function
 void Coding(FILE* fr, FILE * fw, int length){
 
     // print to file lenght of the file
@@ -225,11 +212,10 @@ void Coding(FILE* fr, FILE * fw, int length){
     head = MakeTree(head);
     //PrintTree(head, 0);
 
-    // two-dimensional array with symbol codes
-    //char * symbolCode[256] = {};
     // string with code of one symbol
     char codeSymb[33] = "";
 
+    // struct with codes of symbols
     CODETABLE symbolCode[256] = {0};
 
     // filling a two-dimensional array with codes and ADD TREE to the file
