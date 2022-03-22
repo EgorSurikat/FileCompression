@@ -16,5 +16,14 @@ int main() {
 
     printf("---------------------------------------------\n");
 
+    // open the file which has the encoded information
+    FILE * fileR = fopen("C:\\Users\\ed230\\CLionProjects\\FileCompression\\tests_files\\output", "rb");
+    if (!fileR) return 1;
+
+    FILE * newf = fopen("C:\\Users\\ed230\\CLionProjects\\FileCompression\\tests_files\\decoded", "wb");
+    if (!newf) return 1;
+
+    Decoding(fileR, newf);
+
     return 0;
 }
