@@ -31,12 +31,18 @@ int StartDecoding(){
     FILE * newf = fopen(fileToOut, "wb");
     if (!newf) {
         printf("\nincorrect data\n");
-        return 0;
+        return 1;
     }
+
+    clock_t t0 = clock();
 
     Decoding(fileR, newf);
 
+    clock_t t1 = clock();
+
+    double time_in_seconds = (double)(t1 - t0) / CLOCKS_PER_SEC;
     printf("\ndecoding successfully finished\n");
+    printf("time of processing - %lf seconds\n", time_in_seconds);
 }
 
 
@@ -68,7 +74,7 @@ int StartCoding(){
     FILE * fw = fopen(fileToCod, "wb");
     if (!fw) {
         printf("\nincorrect data\n");
-        return 0;
+        return 1;
     }
     // length of file
     long long length = findLenOfFile(fr);
@@ -81,7 +87,7 @@ int StartCoding(){
 
     double time_in_seconds = (double)(t1 - t0) / CLOCKS_PER_SEC;
     printf("\ncoding successfully finished\n");
-    printf("time of processing - %lf\n", time_in_seconds);
+    printf("time of processing - %lf seconds\n", time_in_seconds);
 
 }
 
