@@ -4,12 +4,13 @@
 
 #include "decoding.h"
 
-// get information from file
+// get information from file (metadata)
 void GetInfoFromFile(NODE ** new, FILE * fw, int *LenOfFile, int *countSymb){
     fscanf(fw, "%d %d ", LenOfFile, countSymb);
     unsigned newFreq[256] = {0};
     for (int n = 0; n < *countSymb; ++n) {
         int symbol;
+        // get tree from the file
         fscanf(fw, "%d ", &symbol);
         fscanf(fw, "%d ", newFreq + symbol);
         AddNewNode(&(*new), newFreq, symbol);
@@ -37,66 +38,42 @@ void BuildStrFromFile(FILE * fr, char * string){
         i += 8;
     }
     string[i] = '\0';
-    //printf("%s", string);
 }
 
-
+// decoding file from string in the form of zeros and ones
 void DecodedString(FILE *fw, NODE *tree, const char *str, int len, unsigned long long lenStr) {
     for (int pos = 0, count = 0; count < len; ++count) {
         int len = 0;
         NODE * tempTree = tree;
         while (tempTree->left || tempTree->right) {
             if (str[pos + len++] == '0')
+                // if '0' --> go to the left
                 tempTree = tempTree->left;
             else
+                // if '1' --> go to the right
                 tempTree = tempTree->right;
         }
         fprintf(fw, "%c", tempTree->symb);
         pos += len;
     }
-    //char * buf = (char*) malloc(len * sizeof(char));
-//    int countOfSymbols = 0;
-//    for (int i = 0; i < lenStr; i += 1){
-//        if (countOfSymbols == len)
-//            break;
-//        buf[countOfBuf] = str[i];
-//        buf[countOfBuf + 1] = '\0';
-//        countOfBuf += 1;
-//        for (int x = 0; x < 256; x += 1) {
-//            if (codetable[x].codeOfSymbol && strcmp(buf, codetable[x].codeOfSymbol) == 0) {
-//                fprintf(fw, "%c", x);
-//                countOfBuf = 0;
-//                countOfSymbols += 1;
-//                break;
-//            }
-//        }
-//    }
 }
 
-
+// main decoding function
 void Decoding(FILE * fr, FILE * fw){
+
     int lenghtOfFile = 0, countUniSymb = 0;
     NODE * newHead = {0};
+
     // get information from file (length, count unique symbols, tree)
     GetInfoFromFile(&newHead, fr, &lenghtOfFile, &countUniSymb);
-    printf("%d", lenghtOfFile);
+
     // make new tree
-
-    //PrintNode(newHead);
     newHead = MakeTree(newHead);
-    //PrintTree(newHead, 0);
-
-    // two-dimensional array with symbol codes
-    //char * newSymbolCode[256] = {};
-//    CODETABLE newSymbolCode[256] = {0};
-//    // string with code of one symbol
-//    char codeSymbol[32] = "";
-//    // filling a two-dimensional array with codes
-//    BuildCodes(newHead, newSymbolCode, codeSymbol, 0, fr);
 
     // the string in which the encoded message will be written in the form of zeros and ones
     char *newSrtCodes = (char*) malloc(lenghtOfFile * 32 * sizeof(char));
     BuildStrFromFile(fr, newSrtCodes);
 
+    // decoding file
     DecodedString(fw, newHead, newSrtCodes, lenghtOfFile, strlen(newSrtCodes));
 }

@@ -68,11 +68,13 @@ void BuildStr(FILE *, CODETABLE *, char*, int);
 // form a string of bits from a string of symbols and write it to a file
 void BuildEncodedStr(FILE*, char *);
 
-
+// add metadata to the file
 void PrintNode2File(NODE*, FILE*);
 
+// print node to screen
 void PrintNode(NODE*);
 
+// main coding function
 void Coding(FILE*, FILE*, int);
 
 #endif //FILECOMPRESSION_BASIC_VAR_AND_STRUCT_H
