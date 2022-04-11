@@ -30,7 +30,7 @@ void AddNewNode(NODE** pphead, const unsigned *freg, int count) {
     }
     NODE* pnew = (NODE*)malloc(sizeof(NODE));
     pnew->symb = (char)count;
-    pnew->freq = (int)freq[count];
+    pnew->freq = (int)freg[count];
     // pointer to the next elem
     pnew->next = *pphead;
     // left and right = NULL to avoid using unallocated memory in the future
@@ -56,7 +56,6 @@ NODE * MakeNode(NODE* left, NODE* right){
     NODE * new = (NODE*)malloc(sizeof(NODE));
     // the sum of the frequencies of the two elements (left and right)
     new->freq = left->freq + right->freq;
-    new->isSymb = 0;
     new->symb = 0;
     new->left = left;
     new->right = right;
@@ -120,25 +119,35 @@ void BuildCodes(NODE* elem, CODETABLE * tableCode, char * codeOfSymbol, int leng
 }
 
 // building encoded string
-void BuildStr(FILE * fr, CODETABLE * tableCode, char* newStr, int len){
-    char *testStr = newStr;
+void BuildStr(FILE * fr, CODETABLE * tableCode, int len, FILE * fw){
+    char * newStr = (char*) calloc(10001, sizeof(char));
+    char * startStr = newStr;
+    int len_str = 10000;
     for (int i = 0; i < len; ++i) {
         // go through the file and replace each symbol with its code and write it to the string
         int symb = fgetc(fr);
-        //tableCode[symb].codeOfSymbol[tableCode[symb].lenOfCode] = 0;
+        if (len_str - tableCode[symb].lenOfCode < 0){
+            char * ogris = BuildEncodedStr(fw, startStr);
+            len_str = 10000 - (int) (newStr - ogris);
+            memcpy(startStr, ogris, (newStr - ogris));
+            for (int j = (newStr - ogris); j < 10000; ++j) startStr[j] = 0;
+            newStr = startStr + (newStr - ogris);
+        }
         memcpy(newStr, tableCode[symb].codeOfSymbol, tableCode[symb].lenOfCode);
         newStr += tableCode[symb].lenOfCode;
+        len_str -= tableCode[symb].lenOfCode;
     }
 
     // add zeros to the string so that an integer number of bytes can be written to the file
-    while (strlen(testStr) % 8 != 0) {
+    while (strlen(startStr) % 8 != 0) {
         memcpy(newStr, "0", 1);
         newStr += 1;
     }
+    BuildEncodedStr(fw, startStr);
 }
 
 // form a string of bits from a string of symbols and write it to a file
-void BuildEncodedStr(FILE * fw, char * strCode){
+char * BuildEncodedStr(FILE * fw, char * strCode){
     // counting the number of bytes
     unsigned long long int count = strlen(strCode) / 8;
 
@@ -160,6 +169,7 @@ void BuildEncodedStr(FILE * fw, char * strCode){
         res[i] = symb.symb;
     }
     fwrite(res, 1, count, fw);
+    return strCode + 8 * count;
 }
 
 // add metadata to the file
@@ -206,11 +216,8 @@ void Coding(FILE* fr, FILE * fw, int length){
     fprintf(fw, "%d ", countOfDifSymb);
     PrintNode2File(head, fw);
 
-    //PrintNode(head);
-
     // make binary tree from the list
     head = MakeTree(head);
-    //PrintTree(head, 0);
 
     // string with code of one symbol
     char codeSymb[33] = "";
@@ -221,13 +228,10 @@ void Coding(FILE* fr, FILE * fw, int length){
     // filling a two-dimensional array with codes and ADD TREE to the file
     BuildCodes(head, symbolCode, codeSymb, 0, fw);
 
-    // string, where each source symbol is replaced with its bit code
-    char * srtCodes = (char*) calloc(length * 32, sizeof(char));
-    //int lenBinString = 0;
-    BuildStr(fr, symbolCode, srtCodes, length);
+    // building encoded string
+    BuildStr(fr, symbolCode, length, fw);
 
-    // form a string of symbols from a string of bits and write it to a file
-    BuildEncodedStr(fw, srtCodes);
-    // close al file
+    // close all files
+    fclose(fr);
     fclose(fw);
 }

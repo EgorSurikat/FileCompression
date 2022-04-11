@@ -7,10 +7,10 @@
 void GetInfoFromFile(NODE**, FILE*, int *, int *);
 
 // build encoded message in the form of zeros and ones
-void BuildStrFromFile(FILE*, char*);
+void BuildStrFromFile(FILE*, FILE*, NODE*, int*);
 
 // decoding file from string in the form of zeros and ones
-void DecodedString(FILE *fw, NODE *tree, const char *str, int len, unsigned long long lenStr);
+const char * DecodedString(FILE *, NODE *, const char *, int*, int, int);
 
 // main decoding function
 void Decoding(FILE*, FILE*);

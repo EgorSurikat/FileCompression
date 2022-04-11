@@ -63,10 +63,10 @@ void PrintTree(NODE*, int);
 void BuildCodes(NODE*, CODETABLE *, char*, int, FILE*);
 
 // building encoded string
-void BuildStr(FILE *, CODETABLE *, char*, int);
+void BuildStr(FILE *, CODETABLE *, int, FILE*);
 
 // form a string of bits from a string of symbols and write it to a file
-void BuildEncodedStr(FILE*, char *);
+char * BuildEncodedStr(FILE*, char *);
 
 // add metadata to the file
 void PrintNode2File(NODE*, FILE*);

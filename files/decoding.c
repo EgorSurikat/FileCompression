@@ -12,14 +12,18 @@ void GetInfoFromFile(NODE ** new, FILE * fw, int *LenOfFile, int *countSymb){
         int symbol;
         // get tree from the file
         fscanf(fw, "%d ", &symbol);
-        fscanf(fw, "%d ", newFreq + symbol);
-        AddNewNode(&(*new), newFreq, symbol);
+        int count;
+        fscanf(fw, "%d ", &count);
+        newFreq[symbol] = count;
+        AddNewNode(new, newFreq, symbol);
     }
 }
 
 // build encoded message in the form of zeros and ones
-void BuildStrFromFile(FILE * fr, char * string){
+void BuildStrFromFile(FILE * fr, FILE * fw, NODE * tree, int *len){
     BIT2CHAR symb;
+    char *string = (char*) calloc(10001, sizeof(char));
+    char * startStr = string;
     int i = 0;
     while (1) {
         int symbol = fgetc(fr);
@@ -27,35 +31,38 @@ void BuildStrFromFile(FILE * fr, char * string){
             break;
         symb.symb = (char) symbol;
 
-        string[i] = symb.mbit.b1 ? '1' : '0';
-        string[i + 1] = symb.mbit.b2 ? '1' : '0';
-        string[i + 2] = symb.mbit.b3 ? '1' : '0';
-        string[i + 3] = symb.mbit.b4 ? '1' : '0';
-        string[i + 4] = symb.mbit.b5 ? '1' : '0';
-        string[i + 5] = symb.mbit.b6 ? '1' : '0';
-        string[i + 6] = symb.mbit.b7 ? '1' : '0';
-        string[i + 7] = symb.mbit.b8 ? '1' : '0';
+        string[0] = symb.mbit.b1 ? '1' : '0';
+        string[1] = symb.mbit.b2 ? '1' : '0';
+        string[2] = symb.mbit.b3 ? '1' : '0';
+        string[3] = symb.mbit.b4 ? '1' : '0';
+        string[4] = symb.mbit.b5 ? '1' : '0';
+        string[5] = symb.mbit.b6 ? '1' : '0';
+        string[6] = symb.mbit.b7 ? '1' : '0';
+        string[7] = symb.mbit.b8 ? '1' : '0';
+        string += 8;
         i += 8;
+        if (i > 9968) {
+            // we decode the filled string and write the file, while preserving the remainder
+            const char * ogris = DecodedString(fw, tree, startStr, len, i, 0);
+            i = (int)(string - ogris);
+            memcpy(startStr, ogris, i);
+            string = startStr + i;
+        }
     }
-    string[i] = '\0';
+    DecodedString(fw, tree, startStr, len, i, 1);
 }
 
 // decoding file from string in the form of zeros and ones
-void DecodedString(FILE *fw, NODE *tree, const char *str, int len, unsigned long long lenStr) {
-    for (int pos = 0, count = 0; count < len; ++count) {
-        int len = 0;
+const char * DecodedString(FILE *fw, NODE *tree, const char *str, int* len, int capacity, int eof) {
+    int pos;
+    for (pos = 0; *len > 0 && (pos < capacity - 32 || pos < capacity && eof); --(*len)) {
+        int length = 0;
         NODE * tempTree = tree;
-        while (tempTree->left || tempTree->right) {
-            if (str[pos + len++] == '0')
-                // if '0' --> go to the left
-                tempTree = tempTree->left;
-            else
-                // if '1' --> go to the right
-                tempTree = tempTree->right;
-        }
+        while (tempTree->left || tempTree->right) tempTree = str[pos + length++] == '0' ? tempTree->left : tempTree->right;
+        pos += length;
         fprintf(fw, "%c", tempTree->symb);
-        pos += len;
     }
+    return str + pos;
 }
 
 // main decoding function
@@ -70,10 +77,19 @@ void Decoding(FILE * fr, FILE * fw){
     // make new tree
     newHead = MakeTree(newHead);
 
-    // the string in which the encoded message will be written in the form of zeros and ones
-    char *newSrtCodes = (char*) malloc(lenghtOfFile * 32 * sizeof(char));
-    BuildStrFromFile(fr, newSrtCodes);
+    // string with code of one symbol
+    char codeSymbol[33] = "";
 
-    // decoding file
-    DecodedString(fw, newHead, newSrtCodes, lenghtOfFile, strlen(newSrtCodes));
+    // struct with codes of symbols
+    CODETABLE symbolCodes[256] = {0};
+
+    // filling a two-dimensional array with codes and ADD TREE to the file
+    BuildCodes(newHead, symbolCodes, codeSymbol, 0, fw);
+
+    // build encoded message in the form of zeros and ones
+    BuildStrFromFile(fr, fw, newHead, &lenghtOfFile);
+
+    // close all files
+    fclose(fr);
+    fclose(fw);
 }
