@@ -36,12 +36,13 @@ int StartDecoding(){
 
     clock_t t0 = clock();
 
+    printf("---------------------------------------------\nStart decoding...\n");
     Decoding(fileR, newf);
 
     clock_t t1 = clock();
 
     double time_in_seconds = (double)(t1 - t0) / CLOCKS_PER_SEC;
-    printf("\ndecoding successfully finished\n");
+    printf("\n\ndecoding successfully finished\n");
     printf("time of processing - %lf seconds\n", time_in_seconds);
 }
 
@@ -81,12 +82,12 @@ int StartCoding(){
 
     clock_t t0 = clock();
 
+    printf("---------------------------------------------\nStart coding...\n");
     Coding(fr, fw, length);
 
     clock_t t1 = clock();
 
     double time_in_seconds = (double)(t1 - t0) / CLOCKS_PER_SEC;
-    printf("\ncoding successfully finished\n");
     printf("time of processing - %lf seconds\n", time_in_seconds);
 
 }
@@ -110,7 +111,7 @@ int main() {
             break;
 
         else
-            printf("\nincorrect data\n");
+            printf("\nincorrect input\n");
     }
     return 0;
 }

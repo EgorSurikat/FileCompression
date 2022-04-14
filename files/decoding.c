@@ -1,7 +1,3 @@
-//
-// Created by ed230 on 21.03.2022.
-//
-
 #include "decoding.h"
 
 // get information from file (metadata)
@@ -19,12 +15,24 @@ void GetInfoFromFile(NODE ** new, FILE * fw, int *LenOfFile, int *countSymb){
     }
 }
 
+void ProgressBar(int count, int length){
+    int per = (int)((double)count / length * 100);
+    printf("\r");
+    char kw = 177, kw1 = 178;
+    for (int i = 0; i < (int)(per / 2); i += 1) printf("%c", kw1);
+    for (int i = 0; i < (int)(50 - (int)(per / 2)); i += 1) printf("%c", kw);
+    printf(" - %d percent  ", per);
+}
+
 // build encoded message in the form of zeros and ones
 void BuildStrFromFile(FILE * fr, FILE * fw, NODE * tree, int *len){
+    printf("\nProgress bar:\ndecoding...\n");
     BIT2CHAR symb;
     char *string = (char*) calloc(10001, sizeof(char));
     char * startStr = string;
+    int length = *len;
     int i = 0;
+    int count = 0;
     while (1) {
         int symbol = fgetc(fr);
         if (symbol == EOF)
@@ -43,23 +51,26 @@ void BuildStrFromFile(FILE * fr, FILE * fw, NODE * tree, int *len){
         i += 8;
         if (i > 9968) {
             // we decode the filled string and write the file, while preserving the remainder
-            const char * ogris = DecodedString(fw, tree, startStr, len, i, 0);
+            const char * ogris = DecodedString(fw, tree, startStr, len, i, 0, &count, length);
             i = (int)(string - ogris);
             memcpy(startStr, ogris, i);
             string = startStr + i;
         }
     }
-    DecodedString(fw, tree, startStr, len, i, 1);
+    DecodedString(fw, tree, startStr, len, i, 1, &count, length);
+    ProgressBar(count, length);
 }
 
 // decoding file from string in the form of zeros and ones
-const char * DecodedString(FILE *fw, NODE *tree, const char *str, int* len, int capacity, int eof) {
+const char * DecodedString(FILE *fw, NODE *tree, const char *str, int* len, int capacity, int eof, int *countSymbols, int constLen) {
     int pos;
     for (pos = 0; *len > 0 && (pos < capacity - 32 || pos < capacity && eof); --(*len)) {
         int length = 0;
         NODE * tempTree = tree;
         while (tempTree->left || tempTree->right) tempTree = str[pos + length++] == '0' ? tempTree->left : tempTree->right;
         pos += length;
+        *countSymbols += 1;
+        if (constLen >= 100 && *countSymbols % (int)(constLen / 100) == 0) ProgressBar(*countSymbols, constLen);
         fprintf(fw, "%c", tempTree->symb);
     }
     return str + pos;

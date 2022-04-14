@@ -66,7 +66,7 @@ void BuildCodes(NODE*, CODETABLE *, char*, int, FILE*);
 void BuildStr(FILE *, CODETABLE *, int, FILE*);
 
 // form a string of bits from a string of symbols and write it to a file
-char * BuildEncodedStr(FILE*, char *);
+char * BuildEncodedStr(FILE*, char *, int*, int);
 
 // add metadata to the file
 void PrintNode2File(NODE*, FILE*);

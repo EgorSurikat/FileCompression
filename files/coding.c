@@ -1,4 +1,5 @@
 #include "coding.h"
+#include "decoding.h"
 
 // array for the number of each symbol in the file
 unsigned freq[256] = {0};
@@ -14,10 +15,16 @@ long long findLenOfFile(FILE * fr){
 
 // the function of counting the number of symbols
 void freqOfOccurrence(FILE * fr, unsigned *freg, long long length){
+    printf("\nProgress Bar:\ncounting...\n");
+    int count = 0;
     for (int i = 0; i < length; ++i) {
         // update count of symbol for each occurrence
         freq[(unsigned char) fgetc(fr)] += 1;
+        count += 1;
+        if ((length >= 100) && (count % (int)(length / 100) == 0))
+            ProgressBar(count, length);
     }
+    ProgressBar(count, length);
 }
 
 // add new elem to list
@@ -120,14 +127,16 @@ void BuildCodes(NODE* elem, CODETABLE * tableCode, char * codeOfSymbol, int leng
 
 // building encoded string
 void BuildStr(FILE * fr, CODETABLE * tableCode, int len, FILE * fw){
+    printf("\n\ncoding...\n");
     char * newStr = (char*) calloc(10001, sizeof(char));
     char * startStr = newStr;
     int len_str = 10000;
+    int count = 0;
     for (int i = 0; i < len; ++i) {
         // go through the file and replace each symbol with its code and write it to the string
         int symb = fgetc(fr);
         if (len_str - tableCode[symb].lenOfCode < 0){
-            char * ogris = BuildEncodedStr(fw, startStr);
+            char * ogris = BuildEncodedStr(fw, startStr, &count, len);
             len_str = 10000 - (int) (newStr - ogris);
             memcpy(startStr, ogris, (newStr - ogris));
             for (int j = (newStr - ogris); j < 10000; ++j) startStr[j] = 0;
@@ -143,11 +152,15 @@ void BuildStr(FILE * fr, CODETABLE * tableCode, int len, FILE * fw){
         memcpy(newStr, "0", 1);
         newStr += 1;
     }
-    BuildEncodedStr(fw, startStr);
+    BuildEncodedStr(fw, startStr, &count, len);
+    ProgressBar(len, len);
+
+    printf("\n\ncoding successfully finished\n");
+    printf("file was compressed on - %lf%%\n", 100 - (double)(count) / len * 100);
 }
 
 // form a string of bits from a string of symbols and write it to a file
-char * BuildEncodedStr(FILE * fw, char * strCode){
+char * BuildEncodedStr(FILE * fw, char * strCode, int * counter, int len){
     // counting the number of bytes
     unsigned long long int count = strlen(strCode) / 8;
 
@@ -167,6 +180,9 @@ char * BuildEncodedStr(FILE * fw, char * strCode){
         symb.mbit.b8 = strCode[i*8 + 7] == '1';
         // get the symbol
         res[i] = symb.symb;
+        *counter += 1;
+        if ((len >= 100 && *counter % (int)(len / 100) == 0)) ProgressBar(*counter, len);
+
     }
     fwrite(res, 1, count, fw);
     return strCode + 8 * count;
@@ -218,6 +234,7 @@ void Coding(FILE* fr, FILE * fw, int length){
 
     // make binary tree from the list
     head = MakeTree(head);
+    PrintTree(head, 0);
 
     // string with code of one symbol
     char codeSymb[33] = "";
@@ -225,8 +242,14 @@ void Coding(FILE* fr, FILE * fw, int length){
     // struct with codes of symbols
     CODETABLE symbolCode[256] = {0};
 
-    // filling a two-dimensional array with codes and ADD TREE to the file
-    BuildCodes(head, symbolCode, codeSymb, 0, fw);
+    if (!head->left && !head->right) {
+        symbolCode[head->symb].codeOfSymbol = (char *)calloc(2, sizeof(char));
+        symbolCode[head->symb].codeOfSymbol[0] = '0';
+        symbolCode[head->symb].lenOfCode = 1;
+    }
+    else
+        // filling a two-dimensional array with codes and ADD TREE to the file
+        BuildCodes(head, symbolCode, codeSymb, 0, fw);
 
     // building encoded string
     BuildStr(fr, symbolCode, length, fw);
